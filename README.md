@@ -128,7 +128,7 @@ The application is built using Python sockets and follows a client-server archit
 
 
 ## <a name="screenshots">Screenshots</a>
-
+![Start to server](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/blob/main/screenshots/Screenshot%202023-08-21%20183318.png
   
 <br>   
 
