@@ -128,8 +128,29 @@ The application is built using Python sockets and follows a client-server archit
 
 
 ## <a name="screenshots">Screenshots</a>
-![Start to server](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/blob/main/screenshots/Screenshot%202023-08-21%20183318.png
-  
+Start the server
+![Start the server](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/assets/70623039/9c55cef7-4629-486b-9b47-2f817c5d0cf3)
+
+<br> 
+
+Connect the client to the server's IP
+![Connect the client to the server's IP](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/assets/70623039/aa446614-3205-4d75-a95a-b0bd21e57d41)
+
+<br> 
+
+See the maual using `!get_manual` command
+![See the maual](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/assets/70623039/7965bd25-0472-4a58-92b7-c6c8dd6de9e7)
+
+<br> 
+
+Send a file to the server using `!send_file` command
+![Send a file to the server](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/assets/70623039/ea2861dc-a15a-416f-9a5b-695d168b0bf2)
+
+<br> 
+
+The file is then saved in the same directory where the server file is located.
+![The file is then saved in the same directory](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/assets/70623039/652497a7-18e8-4182-8883-408e8e8e0340)
+
 <br>   
 
 
@@ -137,6 +158,7 @@ The application is built using Python sockets and follows a client-server archit
 
 Contributions are welcome! If you want to contribute to this project, please fork the repository and submit a pull request.  
 <br>   
+
 
 
 ## <a name="license">License</a>
