@@ -162,12 +162,11 @@ Contributions are welcome! If you want to contribute to this project, please for
 
 
 ## <a name="license">License</a>
+This project is licensed under the MIT License [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE). See the file for details [MIT License](LICENSE).
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---  
 <br>   
-
 
 Feel free to reach out with any questions or feedback. Happy chatting and file sharing with the P2P Chat App!
 This project is licensed under the MIT License. See the LICENSE file for details.
