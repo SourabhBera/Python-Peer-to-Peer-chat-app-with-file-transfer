@@ -1,6 +1,8 @@
 import socket
 import threading
 import os
+import time
+import tqdm
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 1080
@@ -10,14 +12,39 @@ HEADER = 2048
 list_of_clients = []
 list_of_users = []
 
+file_name = 'demo'
+
+def send_file(connection):
+    file_size = os.path.getsize(file_name)
+    name_size = f'{file_name}#{file_size}'
+
+    connection.send("--".encode())
+    connection.send(name_size.encode())
+    connection.send("--".encode())
+     
+    print("file_name: ", file_name)
+    print("file_size: ", file_size)
+    with open(file_name, 'rb') as file:
+        while True:
+            chunk = file.read(file_size)  
+            if not chunk:
+                break  
+            connection.send(chunk)
+    
+    print("\nFile sent successfully \n")
+        
+
+
+
 
 def recive_file(connection):
     try:
+        global file_name
         file_name = connection.recv(2048).decode()
         file_size= connection.recv(2048).decode()
         print(f"File name:{file_name} ")
         print(f"File size:{file_size} ")
-        
+        progress = tqdm.tqdm(range(int(file_size)), f"Receiving {file_name}", unit="B", unit_scale=True, unit_divisor=1024)
         with open(str(file_name), 'wb') as file:
             done = False
             while not done:
@@ -26,12 +53,15 @@ def recive_file(connection):
                     break
                 else:
                     file.write(chunk)
+                progress.update(len(chunk))
+      
         print("\nFile received and saved.\n")
-        return 
-    
+
     except Exception as e:
+        print(e, '\n')
         print("\n[ERROR] Error Occured while reciving file. \n")
     return
+
 
 
 
@@ -129,9 +159,21 @@ def handel_client(connection, address):
                 print(f"Active users: { len(list_of_clients) }\n")
                 break
 
+
             if message[:10] == "!send_file":
                 recive_file(connection)
+                messg = f"\n\n'{USER_NAME}' sent a file -> '{file_name}'. If you want to recive it enter '!rec_file' .\n"
+                broadcast_message(connection, messg, USER_NAME, addr)
                 continue
+
+
+            if message == '!rec_file':
+                send_file(connection)
+                time.sleep(2)
+                connection.send("END".encode())
+                print("END code send!!")
+                continue
+
 
             if message == '!active_users':
                 num_clients = str(len(list_of_clients))
