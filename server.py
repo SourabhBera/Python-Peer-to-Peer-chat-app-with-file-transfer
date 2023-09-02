@@ -1,184 +1,218 @@
 import socket
 import threading
-import time
 import os
+import time
 import tqdm
 
 
-PORT = 1080 
-HEADER = 2048
+HOST = socket.gethostbyname(socket.gethostname())
+PORT = 12345
 FORMAT = 'utf-8'
+HEADER = 2048
 
-def start_chat(SERVER, PORT):
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((SERVER,PORT))
-    print(f'[CONNECTED] Connected to {SERVER}:{PORT} \n')
-    print(f'Happy chatting with your family and friends. \nTo see the manual type: !get_manual  ')
+list_of_clients = []
+list_of_users = []
 
-    print('\n----------------------------------------------------------------------------\n')
+file_name = 'demo'
 
-    receive_thread = threading.Thread(target=receive_messages, daemon=True, args=(client,))
-    receive_thread.start()
+def send_file(connection):
+    file_size = os.path.getsize(file_name)
+    name_size = f'{file_name}#{file_size}'
 
-    send_thread = threading.Thread(target=send_messages, args=(client, USER_NAME, ))
-    send_thread.start()
-
-
-class Manual:
+    connection.send("--".encode())
+    connection.send(name_size.encode())
+    connection.send("--".encode())
+     
+    print("file_name: ", file_name)
+    print("file_size: ", file_size)
+    with open(file_name, 'rb') as file:
+        while True:
+            chunk = file.read(file_size)  
+            if not chunk:
+                break  
+            connection.send(chunk)
     
-    def manual(self):
-        print(f'''
-    Hello this is the manual page.
-
-    The server runs on { SERVER } at Port { PORT }
-
-    Enter:
-
-        !disconnect -- To exit the chat and dissconnect with the server.
-
-        !send_file -- To send a file to all the connected users.
-
-        !active_users -- To see how many users are currently in the chat 
-                         and connected to the server.
-
-        !my_info -- To get your information.
-
-----------------------------------------------------------------------------\n
-    ''')
-
-
-    def my_info(self):
-        my_ip = socket.gethostbyname(socket.gethostname())
-        print(f'''
-    Username: { USER_NAME }
-    Your IP: { my_ip }
-    Server IP: { SERVER }
-    Port: { PORT }
-    Connection Status: Connected
-
-    ''')
+    print("\nFile sent successfully \n")
         
 
-    def send_file(self, client):
-        self.client = client
-        file_path = input("Enter The file path: ")
-        file_split = file_path.split('\\')
-        file_name = file_split[-1:]
-        try:
-            file_size = os.path.getsize(file_path)
-            progress = tqdm.tqdm(range(file_size), f"Sending {file_name}", unit="B", unit_scale=True, unit_divisor=1024)
-            with open(file_path, 'rb') as file:
-                
-                client.send(file_name[0].encode())
-                client.send(str(file_size).encode())
 
-                while True:
-                    chunk = file.read(2048)  
-                    if not chunk:
-                        break  
-                    client.send(chunk)
-                    progress.update(len(chunk))
-            print("\nFile sent successfully \n")
-            return
+
+
+def recive_file(connection):
+    try:
+        global file_name
+        file_name = connection.recv(2048).decode()
+        file_size= connection.recv(2048).decode()
+        print(f"File name:{file_name} ")
+        print(f"File size:{file_size} ")
+        progress = tqdm.tqdm(range(int(file_size)), f"Receiving {file_name}", unit="B", unit_scale=True, unit_divisor=1024)
+        with open(str(file_name), 'wb') as file:
+            done = False
+            while not done:
+                chunk = connection.recv(2048) 
+                if chunk == b'END':
+                    break
+                else:
+                    file.write(chunk)
+                progress.update(len(chunk))
+      
+        print("\nFile received and saved.\n")
+
+    except Exception as e:
+        print(e, '\n')
+        print("\n[ERROR] Error Occured while reciving file. \n")
+    return
+
+
+
+
+def broadcast_message(connection, message, USER_NAME, addr ):
+    while True:
+        if message == 'quit':
+            connection.sendall(message.encode())
+            break
         
-        except Exception as e:
-            print('\nSorry! This function is in development.\n')
+        num_of_clients = len(list_of_clients)
+        i=0
+        new_msg = ['message' ,USER_NAME, addr, message]
+        message = '#'.join(new_msg)
+        
+        while i <= num_of_clients:
+            for client in list_of_clients:
+                if client != connection:
+                    client.sendall(message.encode(FORMAT))     
+            break
+        i += 1
         return
 
 
-    def active_users(self, client):
-        self.client = client
-        client.send("!active_users".encode(FORMAT))
 
-
-
-def rec_file(client):
-    name_size = client.recv(1024).decode()
-    name_size_split = name_size.split('#')
-    file_name = str(name_size_split[0])
-    file_size = int(name_size_split[1])
-    data = b''
-    while True:
-        chunk = client.recv(file_size)
-        if chunk == b'END':
-            break  
-        data += chunk 
-        break
-    name_size_split = name_size.split('#')
-    file_name = str(name_size_split[0])
-    file_size = int(name_size_split[1])
+def notify(connection, USER_NAME, addr , type):
+    num_of_clients = len(list_of_clients)
+    connected_text = f"\n \n!! User [ '{USER_NAME}'/{addr} ] Joined the chat. !! "
+    disconnected_text = f"\n \n!! User [ '{USER_NAME}'/{addr} ] Left the chat. !! "
+    file_text = f"\n \n!! User [ '{USER_NAME}'/{addr} ] Sent a file to the server. !! "
+    if type == 'connected':
+        i=0
+        msg = ['notify' , connected_text]
+        message = '#'.join(msg)
+        while i <= num_of_clients:
+                for client in list_of_clients:
+                    if client != connection:
+                        client.sendall(message.encode(FORMAT))           
+                break
+        i += 1
+        return
     
-    print("\n\tFile name: ",file_name)
-    print("\tFile size: ",file_size)
-
-    with open(file_name, 'wb') as file: 
-        file.write(data)
-
-    print("\n\tFile received and saved.\n")
-
-
-
-def receive_messages(client):
-    while True:
-        data = client.recv(2048).decode()
-        new_data = data.split("#")
-
-        if new_data[0] == '!active_users':
-            print(f'\nActive Users: { new_data[1] } \n')
-        
-        elif new_data[0] == 'notify':
-            print(new_data[1])
-        
-        elif new_data[0] == "message":
-            if new_data[3] == 'quit':
-                exit()
-            else:
-                print(f"\n{ new_data[1] } > {new_data[3]}")
-        
-            
-
-def send_messages(client, USER_NAME):
-    client.send(USER_NAME.encode())
-    manual = Manual()
-    msg = True
-    while msg:
-        message = input("Me > ")
-        if message == '!get_manual':
-            manual.manual()
-            continue
-
-        elif message == "!disconnect":
-            client.send("quit".encode())
-            msg=False
-
-        elif message[:10] == "!send_file":
-            client.send(message[:11].encode())
-            manual.send_file(client)
-            time.sleep(1)
-            client.send("END".encode())
-            continue
-
-        elif message == "!active_users":
-            manual.active_users(client)
-            
-        elif message == "!my_info":
-            manual.my_info()
-            continue
-            
-        elif message == "!rec_file":
-            client.send("!rec_file".encode())
-            rec_file(client)
-            continue
-
-        client.send(message.encode())
+    elif type== 'disconnected':
+        i=0
+        msg = ['notify' , disconnected_text]
+        message = '#'.join(msg)
+        while i <= num_of_clients:
+                for client in list_of_clients:
+                    if client != connection:
+                        client.sendall(message.encode(FORMAT))           
+                break
+        i += 1
+        return
     
+    else:
+        i=0
+        msg = ['notify' , file_text]
+        message = '#'.join(msg)
+        while i <= num_of_clients:
+                for client in list_of_clients:
+                    if client != connection:
+                        client.sendall(message.encode(FORMAT))           
+                break
+        i += 1
+        return
+
+    
+
+def remove_user(connection):
+    for i in range(len(list_of_users)-1):
+        if list_of_users[i][0] == connection:
+            del list_of_users[i]
+
+
+
+def handel_client(connection, address):
+    USER_NAME = connection.recv(2048).decode(FORMAT)
+    list_of_clients.append(connection)
+    list_of_users.append([connection, address, USER_NAME])
+    print(f'[NEW CONNECTION] {USER_NAME} at {address[0]} Connected \n')
+    addr = str( address[0])
+
+    notify(connection, USER_NAME, addr, type='connected')
+
+    connected = True
+    while connected:
+        try:
+            message = connection.recv(2048).decode()
+            if message == "!disconnect":
+                notify(connection, USER_NAME, addr, type='disconnected')
+                list_of_clients.remove(connection)
+                remove_user(connection)
+                connection.close()
+                connected = False
+                print(f"Connection Closed for [{USER_NAME}/{address[0]}]. \n")
+                print(f"Active users: { len(list_of_clients) }\n")
+                break
+
+
+            if message[:10] == "!send_file":
+                recive_file(connection)
+                messg = f"\n\n'{USER_NAME}' sent a file -> '{file_name}'. If you want to recive it enter '!rec_file' .\n"
+                broadcast_message(connection, messg, USER_NAME, addr)
+                continue
+
+
+            if message == '!rec_file':
+                send_file(connection)
+                time.sleep(2)
+                connection.send("END".encode())
+                print("END code send!!")
+                continue
+
+
+            if message == '!active_users':
+                num_clients = str(len(list_of_clients))
+                msg = ['!active_users', num_clients]
+                actv_user = '#'.join(msg)
+                connection.send(actv_user.encode(FORMAT))
+                continue
+                        
+            print(f"[{USER_NAME}/{address[0]}]: {message}")
+            broadcast_message(connection, message, USER_NAME, addr) 
+
+        except Exception as e:
+            print(e)
+            list_of_clients.remove(connection)
+            remove_user(connection)
+            print(len(list_of_users), "The users are here \n \n")
+            connection.close()
+            connected = False
+            print(f"[{USER_NAME}/{address[0]}] Disconnected!. \n")
+            break
+
+
+
+def start_server():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((HOST,PORT))
+    server.listen(5)
+
+    while True:
+        connection, address = server.accept()
+
+        handel_client_thread = threading.Thread(target=handel_client, args=(connection, address))
+        handel_client_thread.start()
 
 
 
 if __name__ == '__main__':
-    SERVER = input("Enter the server IP: ")
-    USER_NAME = input("Enter username: ")
-    print(f'[INFO] Trying to connect the server at  {SERVER}:{PORT} ')
-    start_chat(SERVER, PORT)
+    print(f'[INFO] Server is running at {HOST} : {PORT} \n')
+    start_server()
 
-    
+
