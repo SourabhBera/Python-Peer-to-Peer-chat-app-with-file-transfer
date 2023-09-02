@@ -130,27 +130,27 @@ The application is built using Python sockets and follows a client-server archit
 
 ## <a name="screenshots">Screenshots</a>
 Start the server
-![Start the server](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/screenshots/Screenshot 2023-08-21 183318.png)
+![Start the server](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/blob/1dae80ee41a7097ce13f4d6804dd943f5ab6a215/screenshots/Screenshot%202023-08-21%20183318.png)
 
 <br> 
 
 Connect the client to the server's IP
-![Connect the client to the server's IP](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/screenshots/Screenshot 2023-08-21 183440.png)
+![Connect the client to the server's IP](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/blob/1dae80ee41a7097ce13f4d6804dd943f5ab6a215/screenshots/Screenshot%202023-08-21%20183440.png)
 
 <br> 
 
 See the maual using `!get_manual` command
-![See the maual](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/screenshots/Screenshot 2023-08-21 183732.png)
+![See the maual](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/blob/1dae80ee41a7097ce13f4d6804dd943f5ab6a215/screenshots/Screenshot%202023-08-21%20183732.png)
 
 <br> 
 
 Send a file to the server using `!send_file` command
-![Send a file to the server](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/screenshots/Screenshot 2023-08-21 183913.png)
+![Send a file to the server](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/blob/1dae80ee41a7097ce13f4d6804dd943f5ab6a215/screenshots/Screenshot%202023-08-21%20183913.png)
 
 <br> 
 
 The file is then saved in the same directory where the server file is located.
-![The file is then saved in the same directory](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/screenshots/Screenshot 2023-08-21 183938.png)
+![The file is then saved in the same directory](https://github.com/SourabhBera/Python-Peer-to-Peer-chat-app-with-file-transfer/blob/1dae80ee41a7097ce13f4d6804dd943f5ab6a215/screenshots/Screenshot%202023-08-21%20183938.png)
 
 <br>   
 
