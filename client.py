@@ -4,7 +4,7 @@ import time
 import os
 
 
-PORT = 1080 
+PORT = 12345 
 HEADER = 2048
 FORMAT = 'utf-8'
 
